@@ -137,7 +137,6 @@ logs/
 
 # Local development
 local_test.py
-test_*.py
 debug_*.py
 
 # Private Documentation
