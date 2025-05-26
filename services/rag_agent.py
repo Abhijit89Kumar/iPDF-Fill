@@ -2,6 +2,7 @@
 RAG Agent for answering questions using retrieved context with Cohere reranking.
 """
 import logging
+import time
 from typing import List, Dict, Any, Optional
 from mistralai import Mistral
 import cohere
@@ -212,56 +213,95 @@ Question: {question}
             if options:
                 options_str = "\n".join([f"{chr(65+i)}. {opt}" for i, opt in enumerate(options)])
                 base_prompt += f"""
-Options:
+Original Options:
 {options_str}
 
-IMPORTANT: Return ALL options with the correct one marked with ✓ emoji.
-Example format: "A. Option 1  B. Option 2 ✓  C. Option 3"
+CRITICAL: Reproduce the EXACT option list above, but mark the correct option with ✓ symbol.
+Your response should be the complete option list with one option marked.
+Do NOT write "Answer:" or any explanation - just the marked option list.
+
+Format: A. Option 1  B. Option 2 ✓  C. Option 3  D. Option 4
 """
             else:
-                base_prompt += "\nPlease provide the correct answer in a concise format."
+                base_prompt += "\nProvide the correct answer in a concise format."
 
         elif question_type == QUESTION_TYPES.MULTIPLE_CHOICE_MULTI:
             if options:
                 options_str = "\n".join([f"{chr(65+i)}. {opt}" for i, opt in enumerate(options)])
                 base_prompt += f"""
-Options:
+Original Options:
 {options_str}
 
-IMPORTANT: Return ALL options with the correct ones marked with ✓ emoji.
-Example format: "A. Option 1 ✓  B. Option 2  C. Option 3 ✓"
+CRITICAL: Reproduce the EXACT option list above, but mark ALL correct options with ✓ symbol.
+Your response should be the complete option list with multiple options marked.
+Do NOT write "Answer:" or any explanation - just the marked option list.
+
+Format: A. Option 1 ✓  B. Option 2  C. Option 3 ✓  D. Option 4
 """
             else:
-                base_prompt += "\nPlease provide all correct answers with clear marking."
+                base_prompt += "\nProvide all correct answers with clear marking."
 
         elif question_type == QUESTION_TYPES.TRUE_FALSE:
-            base_prompt += """\nIMPORTANT: Return both True and False options with the correct one marked with ✓ emoji.
-Example format: "True ✓  False" or "True  False ✓"
+            base_prompt += f"""
+Original Statement: {question}
+
+CRITICAL: Show both True and False options with the correct one marked with ✓ symbol.
+Your response should be exactly: "True ✓  False" or "True  False ✓"
+Do NOT write "Answer:" or any explanation - just the marked True/False options.
 """
 
         elif question_type == QUESTION_TYPES.FILL_IN_BLANK:
-            base_prompt += """\nIMPORTANT: Return the complete sentence/paragraph with blanks filled in.
-Do NOT just provide the missing words - show the full text with answers inserted.
-Example: "The movie _____ was directed by..." becomes "The movie Lagaan was directed by..."
+            base_prompt += f"""
+Original Text with Blanks: {question}
+
+CRITICAL: Take the original sentence/paragraph above and fill in ALL the blanks with correct answers.
+Your response should be the COMPLETE text with blanks replaced by answers.
+Do NOT write "Answer:" or provide separate words - show the full completed text.
+
+Example: "The movie _____ was directed by _____" becomes "The movie Lagaan was directed by Ashutosh Gowariker"
 """
 
         elif question_type == QUESTION_TYPES.MATCH_FOLLOWING:
-            base_prompt += """\nIMPORTANT: Show the matched pairs clearly connected with arrows or lines.
-Example format: "1. Item A → Match X  2. Item B → Match Y  3. Item C → Match Z"
+            base_prompt += f"""
+Original Question: {question}
+
+CRITICAL: If the question shows items to match, recreate the matching structure with correct connections.
+Show matched pairs clearly connected with arrows (→).
+Do NOT write "Answer:" - show the completed matching exercise.
+
+Format: 1. Item A → Match X  2. Item B → Match Y  3. Item C → Match Z
 """
 
         elif question_type == QUESTION_TYPES.CHECKBOX:
             if options:
                 options_str = "\n".join([f"☐ {opt}" for opt in options])
                 base_prompt += f"""
-Options:
+Original Checkbox List:
 {options_str}
 
-IMPORTANT: Return ALL options with correct ones marked as ☑ and incorrect ones as ☐.
-Example format: "☑ Correct option 1  ☐ Incorrect option  ☑ Correct option 2"
+CRITICAL: Reproduce the EXACT checkbox list above, but mark correct items with ☑ and keep incorrect items as ☐.
+Your response should be the complete checkbox list with appropriate markings.
+Do NOT write "Answer:" or any explanation - just the marked checkbox list.
+
+Format: ☑ Correct option 1  ☐ Incorrect option  ☑ Correct option 2
 """
             else:
-                base_prompt += "\nIMPORTANT: Use ☑ for correct items and ☐ for incorrect items."
+                base_prompt += "\nUse ☑ for correct items and ☐ for incorrect items."
+
+        elif question_type == QUESTION_TYPES.TABLE_COMPLETION:
+            base_prompt += f"""
+Original Question with Table: {question}
+
+CRITICAL: If the question contains a table structure, recreate the EXACT table with empty cells filled in.
+Maintain the table format and structure. Fill in missing data based on the context.
+Do NOT write "Answer:" - show the completed table.
+
+Example:
+| Movie | Director | Year |
+|-------|----------|------|
+| Lagaan | Ashutosh Gowariker | 2001 |
+| 3 Idiots | Rajkumar Hirani | 2009 |
+"""
 
         elif question_type == QUESTION_TYPES.NUMERICAL_ANSWER:
             base_prompt += "\nPlease provide the numerical answer with appropriate units if applicable. Be precise and concise."
@@ -318,6 +358,11 @@ def answer_all_questions(questions_json: Dict[str, Any], vector_store: VectorSto
         logger.info(f"Processing question {i+1}/{total_questions}")
         answered_question = rag_agent.answer_question(question_data)
         questions_json["questions"][i] = answered_question
+
+        # Add 1-second delay between questions to respect MistralAI rate limit (1 req/sec)
+        if i < total_questions - 1:  # Don't delay after the last question
+            logger.info("Waiting 1 second to respect MistralAI rate limit...")
+            time.sleep(1)
 
     # Update metadata
     questions_json["answered_questions"] = total_questions

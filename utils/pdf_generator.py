@@ -192,33 +192,61 @@ class PDFGenerator:
 
     def _format_answer_by_type(self, question_type: str, answer: str, options: List[str] = None, question_text: str = "") -> str:
         """Format answer based on question type to match input format."""
+
+        # Check if answer contains format-matching indicators
+        has_checkmark = "✓" in answer
+        has_checkbox = "☑" in answer or "☐" in answer
+        has_arrow = "→" in answer
+
         if question_type == QUESTION_TYPES.MULTIPLE_CHOICE_SINGLE or question_type == QUESTION_TYPES.MULTIPLE_CHOICE_MULTI:
-            # If answer already contains tick marks, use it as is
-            if "✓" in answer:
-                return f"<b>Answer:</b><br/>{self._escape_html(answer)}"
+            if has_checkmark:
+                # Format-matched answer - show as completed question
+                return f"<b>Completed Question:</b><br/>{self._escape_html(answer)}"
             else:
-                # Fallback to traditional format if tick marks not found
+                # Fallback to traditional format
                 return f"<b>Answer:</b> {self._escape_html(answer)}"
 
         elif question_type == QUESTION_TYPES.TRUE_FALSE:
-            # If answer already contains tick marks, use it as is
-            if "✓" in answer:
-                return f"<b>Answer:</b><br/>{self._escape_html(answer)}"
+            if has_checkmark:
+                # Format-matched answer - show as completed question
+                return f"<b>Completed Question:</b><br/>{self._escape_html(answer)}"
             else:
                 # Fallback to traditional format
                 return f"<b>Answer:</b> {self._escape_html(answer)}"
 
         elif question_type == QUESTION_TYPES.FILL_IN_BLANK:
-            # For fill-in-blank, show the complete filled sentence
-            return f"<b>Completed Text:</b><br/>{self._escape_html(answer)}"
+            # Check if it's a complete sentence (format-matched) or just the missing words
+            if len(answer.split()) > 3 and not answer.startswith("Answer:"):
+                # Looks like a complete sentence - format-matched
+                return f"<b>Completed Text:</b><br/>{self._escape_html(answer)}"
+            else:
+                # Traditional format
+                return f"<b>Missing Words:</b> {self._escape_html(answer)}"
 
         elif question_type == QUESTION_TYPES.MATCH_FOLLOWING:
-            # For match-the-following, show the matched pairs
-            return f"<b>Matches:</b><br/>{self._escape_html(answer)}"
+            if has_arrow:
+                # Format-matched answer with arrows
+                return f"<b>Completed Matching:</b><br/>{self._escape_html(answer)}"
+            else:
+                # Traditional format
+                return f"<b>Matches:</b><br/>{self._escape_html(answer)}"
 
         elif question_type == QUESTION_TYPES.CHECKBOX:
-            # For checkbox questions, show the checked/unchecked options
-            return f"<b>Answer:</b><br/>{self._escape_html(answer)}"
+            if has_checkbox:
+                # Format-matched answer with checkboxes
+                return f"<b>Completed Checklist:</b><br/>{self._escape_html(answer)}"
+            else:
+                # Traditional format
+                return f"<b>Answer:</b> {self._escape_html(answer)}"
+
+        elif question_type == QUESTION_TYPES.TABLE_COMPLETION:
+            # Check if answer contains table structure
+            if "|" in answer and "---" in answer:
+                # Format-matched table answer
+                return f"<b>Completed Table:</b><br/><pre>{self._escape_html(answer)}</pre>"
+            else:
+                # Traditional format
+                return f"<b>Answer:</b> {self._escape_html(answer)}"
 
         else:
             # For all other question types, use standard format
@@ -234,6 +262,7 @@ class PDFGenerator:
             QUESTION_TYPES.MATCH_FOLLOWING: "Match the Following",
             QUESTION_TYPES.TEXTUAL_ANSWER: "Textual Answer",
             QUESTION_TYPES.CHECKBOX: "Checkbox",
+            QUESTION_TYPES.TABLE_COMPLETION: "Table Completion",
             QUESTION_TYPES.NUMERICAL_ANSWER: "Numerical Answer",
             QUESTION_TYPES.DATE_TIME: "Date/Time",
             QUESTION_TYPES.ORDERING_SEQUENCE: "Ordering/Sequence",

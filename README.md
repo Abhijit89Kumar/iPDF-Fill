@@ -7,7 +7,7 @@ A comprehensive, production-ready Streamlit application that extracts questions 
 ### **Core Capabilities**
 - **PDF to Images Conversion**: High-quality PDF page conversion with optimized resolution
 - **VLM-based Question Extraction**: SambaNova's advanced VLM for intelligent question detection
-- **17 Question Types Support**: Comprehensive coverage including new checkbox format
+- **18 Question Types Support**: Comprehensive coverage including checkbox and table formats
 - **Advanced RAG Pipeline**: State-of-the-art retrieval and generation system
 - **Format-Matching Answers**: Answers match input format (MCQ with ✓, checkboxes ☑/☐, filled blanks)
 - **Professional PDF Output**: Human-like answer sheets with visual indicators
@@ -140,7 +140,7 @@ Sprinto_QnA/
     └── IndianMovie_KnowledgeBase.md
 ```
 
-## 🎯 Supported Question Types (17 Types)
+## 🎯 Supported Question Types (18 Types)
 
 ### **Enhanced Question Type Coverage with Format-Matching Answers**
 
@@ -152,6 +152,7 @@ Sprinto_QnA/
 | **True/False** | `true_false` | Binary choice | `True ✓  False` |
 | **Match the Following** | `match_following` | Matching items | `1. Director A → Film X  2. Director B → Film Y` |
 | **Checkbox** | `checkbox` | Checkbox selections | `☑ Correct option  ☐ Incorrect option` |
+| **Table Completion** | `table_completion` | Fill table cells | Completed table with filled data |
 | **Textual Answer** | `textual_answer` | Open-ended response | Standard comprehensive text answers |
 | **Numerical Answer** | `numerical_answer` | Numerical responses | Precise numerical values with units |
 | **Date/Time** | `date_time` | Dates, years, periods | Specific dates and time periods |
@@ -178,6 +179,7 @@ The system now follows the critical guideline: **"Output answers in the same for
 | **True/False** | `Answer: True` | `True ✓  False` |
 | **Fill-in-blank** | `Answer: word1, word2` | `The complete sentence with word1 and word2 filled in.` |
 | **Checkbox** | N/A | `☑ Correct option  ☐ Incorrect option` |
+| **Table** | N/A | `Complete table with all cells filled` |
 | **Match-following** | `A-1, B-2` | `1. Item A → Match X  2. Item B → Match Y` |
 
 ### **Key Benefits**
@@ -389,7 +391,7 @@ logging.basicConfig(level=logging.DEBUG)
 ## 🎉 System Enhancements Summary
 
 ### **✅ Completed Improvements**
-1. **17 Question Types**: Enhanced from 6 to 17 comprehensive question types (including checkbox)
+1. **18 Question Types**: Enhanced from 6 to 18 comprehensive question types (including checkbox and table)
 2. **Format-Matching Answers**: Revolutionary answer system that matches input format
 3. **Advanced Chunking**: Semantic-aware chunking with 149 intelligent chunks
 4. **Cohere Integration**: embed-v4.0 (1536-dim) + rerank-v3.5 for superior performance
@@ -399,7 +401,7 @@ logging.basicConfig(level=logging.DEBUG)
 ### **Performance Metrics**
 - **📊 Chunking Quality**: 149 semantic chunks vs. basic splitting
 - **🎯 Retrieval Accuracy**: Two-stage process with reranking
-- **📈 Question Coverage**: 17 comprehensive question types with format-matching
+- **📈 Question Coverage**: 18 comprehensive question types with format-matching
 - **🎨 Answer Quality**: Human-like format-matched responses
 - **⚡ Processing Speed**: Optimized for production workloads
 - **🛡️ System Reliability**: Comprehensive error handling and fallbacks
@@ -452,7 +454,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 This comprehensive system provides **state-of-the-art performance** for PDF question extraction and RAG-based answering, with significant improvements in:
 
 - ✅ **Accuracy**: Enhanced retrieval with Cohere reranking
-- ✅ **Coverage**: 17 comprehensive question types with format-matching
+- ✅ **Coverage**: 18 comprehensive question types with format-matching
 - ✅ **User Experience**: Human-like answers with visual indicators (✓, ☑, ☐, →)
 - ✅ **Performance**: Optimized chunking and embedding strategies
 - ✅ **Reliability**: Production-grade error handling and monitoring
