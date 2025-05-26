@@ -6,7 +6,7 @@ mistralai==0.1.2
 qdrant-client==1.7.0
 sentence-transformers==2.2.2
 cohere>=5.0.0
-numpy==1.24.3
+numpy
 pandas
 python-dotenv==1.0.0
 reportlab==4.0.8
@@ -14,7 +14,7 @@ fpdf2==2.7.6
 pydantic==2.5.2
 typing-extensions==4.8.0
 requests==2.31.0
-base64==0.1.0
+base64
 json5==0.9.14
 tqdm==4.66.1
 langchain==0.1.0
