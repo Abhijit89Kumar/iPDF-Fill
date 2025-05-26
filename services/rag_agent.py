@@ -215,7 +215,8 @@ Question: {question}
 Options:
 {options_str}
 
-Please select the single correct answer. Format: "Answer: X"
+IMPORTANT: Return ALL options with the correct one marked with ✓ emoji.
+Example format: "A. Option 1  B. Option 2 ✓  C. Option 3"
 """
             else:
                 base_prompt += "\nPlease provide the correct answer in a concise format."
@@ -227,19 +228,40 @@ Please select the single correct answer. Format: "Answer: X"
 Options:
 {options_str}
 
-Please select ALL correct answers. Format: "Answers: X, Y, Z"
+IMPORTANT: Return ALL options with the correct ones marked with ✓ emoji.
+Example format: "A. Option 1 ✓  B. Option 2  C. Option 3 ✓"
 """
             else:
-                base_prompt += "\nPlease provide all correct answers in a concise format."
+                base_prompt += "\nPlease provide all correct answers with clear marking."
 
         elif question_type == QUESTION_TYPES.TRUE_FALSE:
-            base_prompt += "\nPlease answer True or False. Format: \"Answer: True\" or \"Answer: False\""
+            base_prompt += """\nIMPORTANT: Return both True and False options with the correct one marked with ✓ emoji.
+Example format: "True ✓  False" or "True  False ✓"
+"""
 
         elif question_type == QUESTION_TYPES.FILL_IN_BLANK:
-            base_prompt += "\nPlease provide the word(s) or phrase(s) that should fill in the blank(s). Be precise and concise."
+            base_prompt += """\nIMPORTANT: Return the complete sentence/paragraph with blanks filled in.
+Do NOT just provide the missing words - show the full text with answers inserted.
+Example: "The movie _____ was directed by..." becomes "The movie Lagaan was directed by..."
+"""
 
         elif question_type == QUESTION_TYPES.MATCH_FOLLOWING:
-            base_prompt += "\nPlease provide the correct matches and explain your reasoning."
+            base_prompt += """\nIMPORTANT: Show the matched pairs clearly connected with arrows or lines.
+Example format: "1. Item A → Match X  2. Item B → Match Y  3. Item C → Match Z"
+"""
+
+        elif question_type == QUESTION_TYPES.CHECKBOX:
+            if options:
+                options_str = "\n".join([f"☐ {opt}" for opt in options])
+                base_prompt += f"""
+Options:
+{options_str}
+
+IMPORTANT: Return ALL options with correct ones marked as ☑ and incorrect ones as ☐.
+Example format: "☑ Correct option 1  ☐ Incorrect option  ☑ Correct option 2"
+"""
+            else:
+                base_prompt += "\nIMPORTANT: Use ☑ for correct items and ☐ for incorrect items."
 
         elif question_type == QUESTION_TYPES.NUMERICAL_ANSWER:
             base_prompt += "\nPlease provide the numerical answer with appropriate units if applicable. Be precise and concise."

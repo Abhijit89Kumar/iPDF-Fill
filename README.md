@@ -7,9 +7,10 @@ A comprehensive, production-ready Streamlit application that extracts questions 
 ### **Core Capabilities**
 - **PDF to Images Conversion**: High-quality PDF page conversion with optimized resolution
 - **VLM-based Question Extraction**: SambaNova's advanced VLM for intelligent question detection
-- **16 Question Types Support**: Comprehensive coverage of academic question formats
+- **17 Question Types Support**: Comprehensive coverage including new checkbox format
 - **Advanced RAG Pipeline**: State-of-the-art retrieval and generation system
-- **Professional PDF Output**: Formatted answer sheets with complete metadata
+- **Format-Matching Answers**: Answers match input format (MCQ with ✓, checkboxes ☑/☐, filled blanks)
+- **Professional PDF Output**: Human-like answer sheets with visual indicators
 
 ### **Enhanced AI Integration**
 - **🔗 Cohere Embeddings**: embed-v4.0 model with 1536-dimensional vectors
@@ -139,28 +140,58 @@ Sprinto_QnA/
     └── IndianMovie_KnowledgeBase.md
 ```
 
-## 🎯 Supported Question Types (16 Types)
+## 🎯 Supported Question Types (17 Types)
 
-### **Enhanced Question Type Coverage**
+### **Enhanced Question Type Coverage with Format-Matching Answers**
 
-| Type | Code | Description | Example |
-|------|------|-------------|---------|
-| **Multiple Choice (Single)** | `multiple_choice_single` | One correct answer | Which actor starred in Lagaan? A) Aamir Khan B) Shah Rukh Khan |
-| **Multiple Choice (Multi)** | `multiple_choice_multi` | Multiple correct answers | Which films won National Awards? (Select all) |
-| **Fill in the Blank** | `fill_in_blank` | Missing words/phrases | The movie _____ was directed by Rajkumar Hirani |
-| **True/False** | `true_false` | Binary choice | Lagaan was nominated for Oscar. True/False? |
-| **Match the Following** | `match_following` | Matching items | Match directors with their films |
-| **Textual Answer** | `textual_answer` | Open-ended response | Describe the impact of Bollywood in 2000s |
-| **Numerical Answer** | `numerical_answer` | Numerical responses | How many crores did Lagaan earn at box office? |
-| **Date/Time** | `date_time` | Dates, years, periods | When was Lagaan released? |
-| **Ordering/Sequence** | `ordering_sequence` | Chronological/logical order | Order these films by release date |
-| **Categorization** | `categorization` | Classification/grouping | Categorize these actors by their debut decade |
-| **Comparison** | `comparison` | Compare items | Compare Lagaan and 3 Idiots themes |
-| **Cause & Effect** | `cause_effect` | Cause and effect | What caused Bollywood's global expansion? |
-| **Definition** | `definition` | Definitions/meanings | Define the term "parallel cinema" |
-| **Explanation** | `explanation` | Detailed explanations | Explain the significance of Lagaan |
-| **Analysis** | `analysis` | Analytical thinking | Analyze Bollywood's evolution in 2000s |
-| **Evaluation** | `evaluation` | Judgment/assessment | Evaluate the impact of digital technology |
+| Type | Code | Description | Answer Format Example |
+|------|------|-------------|----------------------|
+| **Multiple Choice (Single)** | `multiple_choice_single` | One correct answer | `A. Option 1  B. Option 2 ✓  C. Option 3` |
+| **Multiple Choice (Multi)** | `multiple_choice_multi` | Multiple correct answers | `A. Option 1 ✓  B. Option 2  C. Option 3 ✓` |
+| **Fill in the Blank** | `fill_in_blank` | Missing words/phrases | `The movie Lagaan was directed by Ashutosh Gowariker.` |
+| **True/False** | `true_false` | Binary choice | `True ✓  False` |
+| **Match the Following** | `match_following` | Matching items | `1. Director A → Film X  2. Director B → Film Y` |
+| **Checkbox** | `checkbox` | Checkbox selections | `☑ Correct option  ☐ Incorrect option` |
+| **Textual Answer** | `textual_answer` | Open-ended response | Standard comprehensive text answers |
+| **Numerical Answer** | `numerical_answer` | Numerical responses | Precise numerical values with units |
+| **Date/Time** | `date_time` | Dates, years, periods | Specific dates and time periods |
+| **Ordering/Sequence** | `ordering_sequence` | Chronological/logical order | Numbered sequence (1, 2, 3...) |
+| **Categorization** | `categorization` | Classification/grouping | Clear categories with explanations |
+| **Comparison** | `comparison` | Compare items | Structured comparison format |
+| **Cause & Effect** | `cause_effect` | Cause and effect | Clear cause → effect relationships |
+| **Definition** | `definition` | Definitions/meanings | Precise definitions with context |
+| **Explanation** | `explanation` | Detailed explanations | Comprehensive explanatory text |
+| **Analysis** | `analysis` | Analytical thinking | Critical analysis with perspectives |
+| **Evaluation** | `evaluation` | Judgment/assessment | Assessment with criteria and reasoning |
+
+## 🎨 Format-Matching Answer System
+
+### **Revolutionary Answer Formatting**
+The system now follows the critical guideline: **"Output answers in the same format as the input"** - making answers look exactly like a human would complete them.
+
+### **Format Transformations**
+
+| Question Type | Traditional Format | New Format-Matched Output |
+|---------------|-------------------|---------------------------|
+| **MCQ Single** | `Answer: B` | `A. Option 1  B. Option 2 ✓  C. Option 3` |
+| **MCQ Multi** | `Answers: A, C` | `A. Option 1 ✓  B. Option 2  C. Option 3 ✓` |
+| **True/False** | `Answer: True` | `True ✓  False` |
+| **Fill-in-blank** | `Answer: word1, word2` | `The complete sentence with word1 and word2 filled in.` |
+| **Checkbox** | N/A | `☑ Correct option  ☐ Incorrect option` |
+| **Match-following** | `A-1, B-2` | `1. Item A → Match X  2. Item B → Match Y` |
+
+### **Key Benefits**
+- ✅ **Human-like Answers**: Matches natural human response patterns
+- ✅ **Visual Clarity**: Tick marks (✓), checkboxes (☑/☐), arrows (→) for immediate understanding
+- ✅ **Professional Output**: PDFs look like completed exam sheets
+- ✅ **Intuitive Design**: No need to interpret answer codes or formats
+- ✅ **Universal Understanding**: Clear to users regardless of technical background
+
+### **Technical Implementation**
+- **Smart Prompting**: LLM receives format-specific instructions for each question type
+- **Visual Preservation**: Special characters (✓, ☑, ☐, →) properly rendered in PDFs
+- **Backward Compatibility**: Falls back to traditional format if format-matching fails
+- **Unicode Support**: Full support for international characters and symbols
 
 ## 🔧 Configuration
 
@@ -358,16 +389,18 @@ logging.basicConfig(level=logging.DEBUG)
 ## 🎉 System Enhancements Summary
 
 ### **✅ Completed Improvements**
-1. **16 Question Types**: Enhanced from 6 to 16 comprehensive question types
-2. **Advanced Chunking**: Semantic-aware chunking with 149 intelligent chunks
-3. **Cohere Integration**: embed-v4.0 (1536-dim) + rerank-v3.5 for superior performance
-4. **Two-Stage Retrieval**: Initial search + reranking for optimal context selection
-5. **Production-Ready**: Robust error handling, logging, and monitoring
+1. **17 Question Types**: Enhanced from 6 to 17 comprehensive question types (including checkbox)
+2. **Format-Matching Answers**: Revolutionary answer system that matches input format
+3. **Advanced Chunking**: Semantic-aware chunking with 149 intelligent chunks
+4. **Cohere Integration**: embed-v4.0 (1536-dim) + rerank-v3.5 for superior performance
+5. **Two-Stage Retrieval**: Initial search + reranking for optimal context selection
+6. **Production-Ready**: Robust error handling, logging, and monitoring
 
 ### **Performance Metrics**
 - **📊 Chunking Quality**: 149 semantic chunks vs. basic splitting
 - **🎯 Retrieval Accuracy**: Two-stage process with reranking
-- **📈 Question Coverage**: 16 comprehensive question types
+- **📈 Question Coverage**: 17 comprehensive question types with format-matching
+- **🎨 Answer Quality**: Human-like format-matched responses
 - **⚡ Processing Speed**: Optimized for production workloads
 - **🛡️ System Reliability**: Comprehensive error handling and fallbacks
 
@@ -419,9 +452,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 This comprehensive system provides **state-of-the-art performance** for PDF question extraction and RAG-based answering, with significant improvements in:
 
 - ✅ **Accuracy**: Enhanced retrieval with Cohere reranking
-- ✅ **Coverage**: 16 comprehensive question types
+- ✅ **Coverage**: 17 comprehensive question types with format-matching
+- ✅ **User Experience**: Human-like answers with visual indicators (✓, ☑, ☐, →)
 - ✅ **Performance**: Optimized chunking and embedding strategies
 - ✅ **Reliability**: Production-grade error handling and monitoring
 - ✅ **Scalability**: Modular architecture for easy scaling
 
-**Ready for production use with enhanced AI capabilities!** 🎯
+**Ready for production use with revolutionary format-matching capabilities!** 🎯

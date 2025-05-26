@@ -138,6 +138,7 @@ logs/
 # Local development
 local_test.py
 debug_*.py
+test_format_*.py
 
 # Private Documentation
 DEPLOYMENT.md

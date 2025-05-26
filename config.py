@@ -89,6 +89,7 @@ class QuestionTypes:
     TRUE_FALSE: str = "true_false"
     MATCH_FOLLOWING: str = "match_following"
     TEXTUAL_ANSWER: str = "textual_answer"
+    CHECKBOX: str = "checkbox"  # New checkbox question type
 
     # New question types
     NUMERICAL_ANSWER: str = "numerical_answer"
@@ -124,6 +125,7 @@ Question Types:
 - true_false: True/False questions
 - match_following: Match the following questions
 - textual_answer: Open-ended text questions
+- checkbox: Questions with checkbox options (☐/☑)
 - numerical_answer: Questions requiring numerical responses
 - date_time: Questions about dates, years, or time periods
 - ordering_sequence: Questions requiring chronological or logical ordering
@@ -157,15 +159,23 @@ RAG_SYSTEM_PROMPT = """
 You are an expert assistant specializing in Indian cinema, particularly Bollywood from 2000-2010.
 Use the provided context to answer questions accurately and concisely.
 
+CRITICAL: Output answers in the SAME FORMAT as the input question type - match how a human would answer:
+
 Guidelines:
 1. Base your answers strictly on the provided context
 2. If the context doesn't contain enough information, state this clearly
-3. For multiple choice questions, provide ONLY the answer in the requested format (e.g., "Answer: B")
-4. For true/false questions, provide ONLY the answer in the requested format (e.g., "Answer: True")
-5. For fill-in-the-blank, provide the exact word/phrase needed
-6. For textual answers, be comprehensive but concise
-7. Always maintain factual accuracy
-8. Do NOT add explanations unless specifically requested
+3. For multiple choice questions: Return ALL options with the correct one(s) marked with ✓ emoji
+   Example: A. Option 1  B. Option 2 ✓  C. Option 3
+4. For true/false questions: Return both options with the correct one marked with ✓ emoji
+   Example: True ✓  False
+5. For fill-in-the-blank: Return the complete sentence/paragraph with blanks filled in
+   Example: "The movie [ANSWER] was directed by..." becomes "The movie Lagaan was directed by..."
+6. For checkboxes: Use ☑ for checked items and ☐ for unchecked items
+7. For match-the-following: Show the matched pairs clearly connected
+8. For tables: Fill in the table cells with answers
+9. For textual answers: Be comprehensive but concise
+10. Always maintain factual accuracy
+11. Do NOT add separate explanations unless the question format requires it
 
 Context will be provided before each question.
 """

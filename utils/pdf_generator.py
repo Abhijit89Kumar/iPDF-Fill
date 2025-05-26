@@ -169,18 +169,15 @@ class PDFGenerator:
         type_text = f"<i>Type: {self._format_question_type(question_type)}</i>"
         story.append(Paragraph(type_text, self.metadata_style))
 
-        # Options (if applicable)
-        options = question_data.get("options")
-        if options:
-            story.append(Spacer(1, 6))
-            for i, option in enumerate(options):
-                option_text = f"{chr(65+i)}. {self._escape_html(option)}"
-                story.append(Paragraph(option_text, self.option_style))
-
-        # Answer
+        # Handle different question types and their answers
         answer = question_data.get("answer", "No answer provided")
-        answer_text = f"<b>Answer:</b> {self._escape_html(answer)}"
-        story.append(Paragraph(answer_text, self.answer_style))
+        options = question_data.get("options")
+
+        # Format answer based on question type
+        formatted_answer = self._format_answer_by_type(question_type, answer, options, question_text)
+
+        story.append(Spacer(1, 6))
+        story.append(Paragraph(formatted_answer, self.answer_style))
 
         # Metadata
         page_num = question_data.get("metadata", {}).get("page_number", "Unknown")
@@ -193,6 +190,40 @@ class PDFGenerator:
 
         return story
 
+    def _format_answer_by_type(self, question_type: str, answer: str, options: List[str] = None, question_text: str = "") -> str:
+        """Format answer based on question type to match input format."""
+        if question_type == QUESTION_TYPES.MULTIPLE_CHOICE_SINGLE or question_type == QUESTION_TYPES.MULTIPLE_CHOICE_MULTI:
+            # If answer already contains tick marks, use it as is
+            if "✓" in answer:
+                return f"<b>Answer:</b><br/>{self._escape_html(answer)}"
+            else:
+                # Fallback to traditional format if tick marks not found
+                return f"<b>Answer:</b> {self._escape_html(answer)}"
+
+        elif question_type == QUESTION_TYPES.TRUE_FALSE:
+            # If answer already contains tick marks, use it as is
+            if "✓" in answer:
+                return f"<b>Answer:</b><br/>{self._escape_html(answer)}"
+            else:
+                # Fallback to traditional format
+                return f"<b>Answer:</b> {self._escape_html(answer)}"
+
+        elif question_type == QUESTION_TYPES.FILL_IN_BLANK:
+            # For fill-in-blank, show the complete filled sentence
+            return f"<b>Completed Text:</b><br/>{self._escape_html(answer)}"
+
+        elif question_type == QUESTION_TYPES.MATCH_FOLLOWING:
+            # For match-the-following, show the matched pairs
+            return f"<b>Matches:</b><br/>{self._escape_html(answer)}"
+
+        elif question_type == QUESTION_TYPES.CHECKBOX:
+            # For checkbox questions, show the checked/unchecked options
+            return f"<b>Answer:</b><br/>{self._escape_html(answer)}"
+
+        else:
+            # For all other question types, use standard format
+            return f"<b>Answer:</b> {self._escape_html(answer)}"
+
     def _format_question_type(self, question_type: str) -> str:
         """Format question type for display."""
         type_mapping = {
@@ -202,6 +233,7 @@ class PDFGenerator:
             QUESTION_TYPES.TRUE_FALSE: "True/False",
             QUESTION_TYPES.MATCH_FOLLOWING: "Match the Following",
             QUESTION_TYPES.TEXTUAL_ANSWER: "Textual Answer",
+            QUESTION_TYPES.CHECKBOX: "Checkbox",
             QUESTION_TYPES.NUMERICAL_ANSWER: "Numerical Answer",
             QUESTION_TYPES.DATE_TIME: "Date/Time",
             QUESTION_TYPES.ORDERING_SEQUENCE: "Ordering/Sequence",
