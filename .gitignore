@@ -139,3 +139,7 @@ logs/
 local_test.py
 test_*.py
 debug_*.py
+
+# Private Documentation
+DEPLOYMENT.md
+GITHUB_SETUP.md
