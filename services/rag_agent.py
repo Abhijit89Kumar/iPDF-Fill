@@ -226,11 +226,19 @@ CRITICAL FORMATTING RULES:
 3. Keep all other options unchanged
 4. Do NOT add "Answer:", explanations, or extra text
 5. Output ONLY the option list with one ✓ mark
+6. Put each option on a separate line
 
-REQUIRED OUTPUT FORMAT:
-A. [Option text] B. [Option text] ✓ C. [Option text] D. [Option text]
+REQUIRED OUTPUT FORMAT (each option on new line):
+A. [Option text]
+B. [Option text] ✓
+C. [Option text]
+D. [Option text]
 
-Example: A. Om Shanti Om B. Slumdog Millionaire ✓ C. Rab Ne Bana Di Jodi D. 3 Idiots
+Example:
+A. Om Shanti Om
+B. Slumdog Millionaire ✓
+C. Rab Ne Bana Di Jodi
+D. 3 Idiots
 """
             else:
                 base_prompt += "\nProvide the correct answer in a concise format."
@@ -248,11 +256,19 @@ CRITICAL FORMATTING RULES:
 3. Keep incorrect options unchanged
 4. Do NOT add "Answer:", explanations, or extra text
 5. Output ONLY the option list with ✓ marks
+6. Put each option on a separate line
 
-REQUIRED OUTPUT FORMAT:
-A. [Option text] ✓ B. [Option text] C. [Option text] ✓ D. [Option text]
+REQUIRED OUTPUT FORMAT (each option on new line):
+A. [Option text] ✓
+B. [Option text]
+C. [Option text] ✓
+D. [Option text]
 
-Example: A. Karan Johar ✓ B. Rakeysh Omprakash Mehra C. Aditya Chopra ✓ D. Sanjay Leela Bhansali
+Example:
+A. Karan Johar ✓
+B. Rakeysh Omprakash Mehra
+C. Aditya Chopra ✓
+D. Sanjay Leela Bhansali
 """
             else:
                 base_prompt += "\nProvide all correct answers with clear marking."
@@ -376,14 +392,29 @@ Example:
             if answer.startswith(prefix):
                 answer = answer[len(prefix):].strip()
 
-        # For multiple choice questions, ensure proper spacing
+        # For multiple choice questions, ensure proper formatting
         if question_type in [QUESTION_TYPES.MULTIPLE_CHOICE_SINGLE, QUESTION_TYPES.MULTIPLE_CHOICE_MULTI]:
-            # Ensure proper spacing between options
-            answer = answer.replace("  ", " ")  # Remove double spaces
-            # Add space before option letters if missing
             import re
-            answer = re.sub(r'([A-Z]\.)', r' \1', answer)
-            answer = answer.strip()
+
+            # If the answer has newlines, preserve them
+            if '\n' in answer:
+                # Split by newlines and clean each line
+                lines = answer.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    line = line.strip()
+                    if line and re.match(r'^[A-Z]\.', line):
+                        cleaned_lines.append(line)
+
+                if cleaned_lines:
+                    answer = '\n'.join(cleaned_lines)
+            else:
+                # If no newlines, try to add them between options
+                # Remove excessive spaces
+                answer = re.sub(r'\s+', ' ', answer)
+                # Add newlines before option letters (but not the first one)
+                answer = re.sub(r'\s+([A-Z]\.)', r'\n\1', answer)
+                answer = answer.strip()
 
         return answer
 

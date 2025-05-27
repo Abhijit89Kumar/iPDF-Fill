@@ -203,15 +203,52 @@ class PDFGenerator:
                 # Format-matched answer - show as completed question with proper formatting
                 # Split by option letters and format each option on a new line
                 import re
-                options_pattern = r'([A-Z]\.[^A-Z]*?)(?=[A-Z]\.|$)'
-                options = re.findall(options_pattern, answer)
-                if options:
-                    formatted_options = "<br/>".join([opt.strip() for opt in options])
-                    return f"<b>Completed Question:</b><br/>{self._escape_html(formatted_options)}"
+
+                # Clean the answer first
+                clean_answer = answer.strip()
+
+                # Check if answer already has newlines (preferred format)
+                if '\n' in clean_answer:
+                    # Split by newlines and format each option
+                    lines = clean_answer.split('\n')
+                    formatted_options = []
+                    for line in lines:
+                        line = line.strip()
+                        if line and re.match(r'^[A-Z]\.', line):
+                            escaped_line = self._escape_html(line)
+                            formatted_options.append(escaped_line)
+
+                    if formatted_options:
+                        options_text = "<br/>".join(formatted_options)
+                        return f"<b>Completed Question:</b><br/>{options_text}"
+
+                # Fallback: try to split by option patterns (A., B., C., D.)
+                options_pattern = r'([A-Z]\.[^A-Z]*?)(?=\s*[A-Z]\.|$)'
+                options = re.findall(options_pattern, clean_answer)
+
+                if options and len(options) > 1:
+                    # Successfully parsed options - format each on new line
+                    formatted_options = []
+                    for opt in options:
+                        opt = opt.strip()
+                        if opt:
+                            # Escape HTML but preserve structure
+                            escaped_opt = self._escape_html(opt)
+                            formatted_options.append(escaped_opt)
+
+                    # Join with line breaks for PDF (don't escape the <br/> tags)
+                    options_text = "<br/>".join(formatted_options)
+                    return f"<b>Completed Question:</b><br/>{options_text}"
                 else:
-                    # Fallback if regex doesn't work
-                    formatted_answer = answer.replace(" A.", "<br/>A.").replace(" B.", "<br/>B.").replace(" C.", "<br/>C.").replace(" D.", "<br/>D.")
-                    return f"<b>Completed Question:</b><br/>{self._escape_html(formatted_answer)}"
+                    # Final fallback: manually split by common patterns
+                    # Replace spaces before option letters with line breaks
+                    formatted_answer = clean_answer
+                    formatted_answer = re.sub(r'\s+([A-Z]\.)', r'<br/>\1', formatted_answer)
+                    # Remove leading <br/> if present
+                    formatted_answer = formatted_answer.lstrip('<br/>')
+                    # Escape HTML content but preserve <br/> tags
+                    formatted_answer = self._escape_html_preserve_breaks(formatted_answer)
+                    return f"<b>Completed Question:</b><br/>{formatted_answer}"
             else:
                 # Fallback to traditional format
                 return f"<b>Answer:</b> {self._escape_html(answer)}"
@@ -297,6 +334,27 @@ class PDFGenerator:
         text = text.replace(">", "&gt;")
         text = text.replace('"', "&quot;")
         text = text.replace("'", "&#x27;")
+
+        return text
+
+    def _escape_html_preserve_breaks(self, text: str) -> str:
+        """Escape HTML characters but preserve <br/> tags."""
+        if not text:
+            return ""
+
+        text = str(text)
+        # First, temporarily replace <br/> tags with a placeholder
+        text = text.replace("<br/>", "___BREAK___")
+
+        # Escape HTML characters
+        text = text.replace("&", "&amp;")
+        text = text.replace("<", "&lt;")
+        text = text.replace(">", "&gt;")
+        text = text.replace('"', "&quot;")
+        text = text.replace("'", "&#x27;")
+
+        # Restore <br/> tags
+        text = text.replace("___BREAK___", "<br/>")
 
         return text
 

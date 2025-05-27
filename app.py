@@ -217,24 +217,28 @@ def display_results(answered_questions, output_pdf_path):
         if Path(output_pdf_path).exists():
             with open(output_pdf_path, "rb") as pdf_file:
                 pdf_data = pdf_file.read()
-                st.download_button(
-                    label="📄 Download Answer PDF",
-                    data=pdf_data,
-                    file_name=output_pdf_path,
-                    mime="application/pdf",
-                    key=f"download_pdf_{output_pdf_path}",
-                    use_container_width=True
-                )
+
+            # Use a more unique key and disable form submission
+            download_key = f"pdf_download_{hash(output_pdf_path)}_{len(answered_questions)}"
+            st.download_button(
+                label="📄 Download Answer PDF",
+                data=pdf_data,
+                file_name=output_pdf_path,
+                mime="application/pdf",
+                key=download_key,
+                help="Click to download the answer PDF"
+            )
 
     with col2:
         json_str = json.dumps(answered_questions, indent=2)
+        json_download_key = f"json_download_{hash(output_pdf_path)}_{len(answered_questions)}"
         st.download_button(
             label="📋 Download JSON Results",
             data=json_str,
             file_name=f"{Path(output_pdf_path).stem}.json",
             mime="application/json",
-            key=f"download_json_{output_pdf_path}",
-            use_container_width=True
+            key=json_download_key,
+            help="Click to download the JSON results"
         )
 
     # Preview questions and answers
