@@ -33,7 +33,7 @@ Multiple choice, fill-in-blank, true/false, matching, tables, checkboxes, numeri
 
 ### Installation
 ```bash
-git clone <repository>
+git clone https://github.com/Abhijit89Kumar/iPDF-Fill.git
 cd Sprinto_QnA
 pip install -r requirements.txt
 ```
@@ -47,6 +47,11 @@ QDRANT_URL=your_url
 QDRANT_API_KEY=your_key
 COHERE_API_KEY=your_key
 ```
+
+### Sample Questionnaires and Knowledge Bases
+Sample questionnaires and knowledge bases can be found at https://drive.google.com/drive/folders/1TNtYQHlwaGWWJI3KSQMG1vpbxeVVMzwJ?usp=sharing
+
+Note: The Knowledge Base for the Indian Movies is the default one and is pre-loaded in the qdrant vector store.
 
 ### Local Development
 ```bash
@@ -113,51 +118,4 @@ python demo.py
     └── pdf_generator.py  # Answer PDF generation
 ```
 
-## API Rate Limits
 
-- **MistralAI**: 1 request/second (handled with delays)
-- **SambaNova**: Standard rate limits
-- **Cohere**: Standard rate limits
-- **Qdrant**: Based on plan
-
-## Troubleshooting
-
-### Common Issues
-1. **PDF processing fails**: Check PDF format and file size
-2. **VLM extraction errors**: Verify SambaNova API key and model availability
-3. **Vector store connection**: Check Qdrant URL and API key
-4. **Answer generation fails**: Verify MistralAI API key and rate limits
-
-### Logs
-Check Streamlit logs for detailed error information.
-
-## Maintenance
-
-### Regular Tasks
-- Monitor API usage and costs
-- Update vector database when knowledge base changes
-- Review and update question type classifications
-- Test with new PDF formats
-
-### Updates
-- Keep dependencies updated via `pip install -r requirements.txt --upgrade`
-- Monitor API provider updates and model changes
-- Update configuration as needed
-
-## Security
-
-- API keys stored as environment variables or Streamlit secrets
-- No sensitive data logged
-- Temporary files cleaned up after processing
-- Vector database access restricted by API key
-
-## Performance
-
-- PDF processing: ~2-5 seconds per page
-- Question extraction: ~10-30 seconds per page
-- Vector database setup: ~30-60 seconds for typical knowledge base
-- Answer generation: ~1-2 seconds per question (rate limited)
-
-## Support
-
-For issues or questions, contact the development team.
