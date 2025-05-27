@@ -175,6 +175,10 @@ class RAGAgent:
             )
 
             answer = response.choices[0].message.content.strip()
+
+            # Post-process answer to ensure proper formatting
+            answer = self._post_process_answer(answer, question_type)
+
             logger.info(f"Generated answer for {question_type} question")
 
             return answer
@@ -216,11 +220,17 @@ Question: {question}
 Original Options:
 {options_str}
 
-CRITICAL: Reproduce the EXACT option list above, but mark the correct option with ✓ symbol.
-Your response should be the complete option list with one option marked.
-Do NOT write "Answer:" or any explanation - just the marked option list.
+CRITICAL FORMATTING RULES:
+1. Copy the EXACT option list above
+2. Add ✓ symbol ONLY after the correct option
+3. Keep all other options unchanged
+4. Do NOT add "Answer:", explanations, or extra text
+5. Output ONLY the option list with one ✓ mark
 
-Format: A. Option 1  B. Option 2 ✓  C. Option 3  D. Option 4
+REQUIRED OUTPUT FORMAT:
+A. [Option text] B. [Option text] ✓ C. [Option text] D. [Option text]
+
+Example: A. Om Shanti Om B. Slumdog Millionaire ✓ C. Rab Ne Bana Di Jodi D. 3 Idiots
 """
             else:
                 base_prompt += "\nProvide the correct answer in a concise format."
@@ -232,11 +242,17 @@ Format: A. Option 1  B. Option 2 ✓  C. Option 3  D. Option 4
 Original Options:
 {options_str}
 
-CRITICAL: Reproduce the EXACT option list above, but mark ALL correct options with ✓ symbol.
-Your response should be the complete option list with multiple options marked.
-Do NOT write "Answer:" or any explanation - just the marked option list.
+CRITICAL FORMATTING RULES:
+1. Copy the EXACT option list above
+2. Add ✓ symbol after ALL correct options
+3. Keep incorrect options unchanged
+4. Do NOT add "Answer:", explanations, or extra text
+5. Output ONLY the option list with ✓ marks
 
-Format: A. Option 1 ✓  B. Option 2  C. Option 3 ✓  D. Option 4
+REQUIRED OUTPUT FORMAT:
+A. [Option text] ✓ B. [Option text] C. [Option text] ✓ D. [Option text]
+
+Example: A. Karan Johar ✓ B. Rakeysh Omprakash Mehra C. Aditya Chopra ✓ D. Sanjay Leela Bhansali
 """
             else:
                 base_prompt += "\nProvide all correct answers with clear marking."
@@ -337,6 +353,39 @@ Example:
             base_prompt += "\nPlease provide a comprehensive answer based on the context provided."
 
         return base_prompt
+
+    def _post_process_answer(self, answer: str, question_type: str) -> str:
+        """
+        Post-process the LLM answer to ensure proper formatting.
+
+        Args:
+            answer: Raw answer from LLM
+            question_type: Type of question
+
+        Returns:
+            Cleaned and formatted answer
+        """
+        # Remove common unwanted prefixes
+        unwanted_prefixes = [
+            "Answer:", "answer:", "ANSWER:",
+            "The answer is:", "The correct answer is:",
+            "Based on the context:", "According to the context:"
+        ]
+
+        for prefix in unwanted_prefixes:
+            if answer.startswith(prefix):
+                answer = answer[len(prefix):].strip()
+
+        # For multiple choice questions, ensure proper spacing
+        if question_type in [QUESTION_TYPES.MULTIPLE_CHOICE_SINGLE, QUESTION_TYPES.MULTIPLE_CHOICE_MULTI]:
+            # Ensure proper spacing between options
+            answer = answer.replace("  ", " ")  # Remove double spaces
+            # Add space before option letters if missing
+            import re
+            answer = re.sub(r'([A-Z]\.)', r' \1', answer)
+            answer = answer.strip()
+
+        return answer
 
 def answer_all_questions(questions_json: Dict[str, Any], vector_store: VectorStore) -> Dict[str, Any]:
     """

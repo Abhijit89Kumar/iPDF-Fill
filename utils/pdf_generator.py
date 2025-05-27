@@ -200,8 +200,18 @@ class PDFGenerator:
 
         if question_type == QUESTION_TYPES.MULTIPLE_CHOICE_SINGLE or question_type == QUESTION_TYPES.MULTIPLE_CHOICE_MULTI:
             if has_checkmark:
-                # Format-matched answer - show as completed question
-                return f"<b>Completed Question:</b><br/>{self._escape_html(answer)}"
+                # Format-matched answer - show as completed question with proper formatting
+                # Split by option letters and format each option on a new line
+                import re
+                options_pattern = r'([A-Z]\.[^A-Z]*?)(?=[A-Z]\.|$)'
+                options = re.findall(options_pattern, answer)
+                if options:
+                    formatted_options = "<br/>".join([opt.strip() for opt in options])
+                    return f"<b>Completed Question:</b><br/>{self._escape_html(formatted_options)}"
+                else:
+                    # Fallback if regex doesn't work
+                    formatted_answer = answer.replace(" A.", "<br/>A.").replace(" B.", "<br/>B.").replace(" C.", "<br/>C.").replace(" D.", "<br/>D.")
+                    return f"<b>Completed Question:</b><br/>{self._escape_html(formatted_answer)}"
             else:
                 # Fallback to traditional format
                 return f"<b>Answer:</b> {self._escape_html(answer)}"

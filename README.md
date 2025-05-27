@@ -1,463 +1,163 @@
 # PDF Question Extraction and RAG Answering System
 
-A comprehensive, production-ready Streamlit application that extracts questions from PDF documents using Vision Language Models (VLM) and answers them using advanced Retrieval-Augmented Generation (RAG) with enhanced AI capabilities.
+Internal tool for extracting questions from PDF documents using Vision Language Models and answering them via Retrieval-Augmented Generation.
 
-## 🌟 Key Features
+## Overview
 
-### **Core Capabilities**
-- **PDF to Images Conversion**: High-quality PDF page conversion with optimized resolution
-- **VLM-based Question Extraction**: SambaNova's advanced VLM for intelligent question detection
-- **18 Question Types Support**: Comprehensive coverage including checkbox and table formats
-- **Advanced RAG Pipeline**: State-of-the-art retrieval and generation system
-- **Format-Matching Answers**: Answers match input format (MCQ with ✓, checkboxes ☑/☐, filled blanks)
-- **Professional PDF Output**: Human-like answer sheets with visual indicators
+This system processes PDF questionnaires by:
+1. Converting PDF pages to images
+2. Extracting questions using SambaNova VLM
+3. Building vector database from knowledge base
+4. Answering questions using MistralAI with Cohere embeddings/reranking
+5. Generating formatted answer PDFs
 
-### **Enhanced AI Integration**
-- **🔗 Cohere Embeddings**: embed-v4.0 model with 1536-dimensional vectors
-- **🔄 Cohere Reranking**: rerank-v3.5 for improved context relevance
-- **🧠 Semantic Chunking**: Domain-aware intelligent text segmentation
-- **🗄️ Vector Database**: Qdrant cloud for efficient similarity search
-- **🤖 Production-Ready**: Robust error handling, logging, and monitoring
+## Technology Stack
 
-## 🏗️ System Architecture
+- **VLM**: SambaNova Llama-4-Maverick-17B
+- **LLM**: MistralAI mistral-large-latest  
+- **Embeddings**: Cohere embed-v4.0 (1536-dim)
+- **Reranking**: Cohere rerank-v3.5
+- **Vector DB**: Qdrant
+- **Framework**: Streamlit
+- **PDF Processing**: PyMuPDF, ReportLab
 
-### **Processing Pipeline**
-```
-PDF Input → Images → VLM Extraction → Questions JSON
-                                           ↓
-Knowledge Base → Advanced Chunking → Cohere Embeddings → Vector Store
-                                           ↓
-Questions + Vector Store → Cohere Reranking → RAG Agent → Answers → PDF Output
-```
+## Supported Question Types
 
-### **Technology Stack**
-- **APIs & Services**: SambaNova (VLM), MistralAI (LLM), Qdrant (Vector DB), Cohere (Embeddings & Reranking)
-- **Core Libraries**: Streamlit, PyMuPDF, ReportLab, Cohere SDK
-- **AI Models**: embed-v4.0 (1536-dim), rerank-v3.5, mistral-large-latest
+Multiple choice, fill-in-blank, true/false, matching, tables, checkboxes, numerical, date/time, ordering, categorization, comparison, cause/effect, definition, explanation, analysis, evaluation, textual answers.
 
-## 🎯 Enhanced Capabilities
+## Setup
 
-### **🔗 Advanced Cohere Integration**
-- **Embeddings**: State-of-the-art embed-v4.0 model with 1536-dimensional vectors
-- **Reranking**: Two-stage retrieval with rerank-v3.5 for improved context relevance
-- **Optimized Input Types**: `search_document` for indexing, `search_query` for retrieval
+### Prerequisites
+- Python 3.10+
+- API keys for SambaNova, MistralAI, Qdrant, Cohere
 
-### **🧠 Intelligent Chunking System**
-- **Semantic Awareness**: Domain-specific content understanding for Indian cinema
-- **Entity Recognition**: Automatic extraction of films, persons, years, and awards
-- **Content Classification**: Identifies film info, person info, lists, and narrative content
-- **Importance Scoring**: Ranks chunks by relevance and information density
-- **Context Preservation**: Maintains semantic boundaries and relationships
-
-### **📊 Performance Improvements**
-- **149 Semantic Chunks**: vs. basic text splitting
-- **Two-Stage Retrieval**: Initial search + reranking for quality
-- **Enhanced Question Coverage**: 16 comprehensive question types
-- **Production-Grade**: Robust error handling and monitoring
-
-## 🚀 Quick Start
-
-### 1. Local Development Setup
-
+### Installation
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/pdf-question-rag-system.git
-cd pdf-question-rag-system
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+git clone <repository>
+cd Sprinto_QnA
 pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.template .env
-# Edit .env with your actual API keys
 ```
 
-### 2. Run the Application
+### Environment Variables
+Create `.env` file or set Streamlit secrets:
+```
+SAMBANOVA_API_KEY=your_key
+MISTRAL_API_KEY=your_key
+QDRANT_URL=your_url
+QDRANT_API_KEY=your_key
+COHERE_API_KEY=your_key
+```
 
+### Local Development
 ```bash
-# Verify setup
-python test_setup.py
-
-# Start the application
 streamlit run app.py
 ```
 
-### 3. Usage
+### Deployment
+Deploy to Streamlit Cloud with secrets configured in dashboard.
 
-1. **Upload PDF**: Upload your questionnaire PDF
-2. **Upload Knowledge Base** (optional): Upload markdown knowledge base or use default
-3. **Configure Options**: Set processing preferences
-4. **Process**: Click "Process PDF and Generate Answers"
-5. **Download Results**: Get PDF answers and JSON backup
+## Usage
 
-## 🌐 Deployment
+1. Upload knowledge base (Markdown file)
+2. Upload PDF questionnaire
+3. Click "Process PDF and Generate Answers"
+4. Download generated answer PDF and JSON results
 
-### **GitHub Repository**
-This project is designed for easy deployment to GitHub with proper secret management:
+## Architecture
 
-- ✅ **Environment Variables**: All API keys loaded from environment variables
-- ✅ **GitHub Secrets**: Secure storage for production API keys
-- ✅ **Automated Testing**: GitHub Actions for continuous integration
-- ✅ **Security**: `.env` files excluded from version control
-
-### **Streamlit Cloud Deployment**
-Deploy directly to Streamlit Cloud:
-
-1. **Fork/Clone** this repository to your GitHub account
-2. **Connect** to [share.streamlit.io](https://share.streamlit.io)
-3. **Configure Secrets** in Streamlit Cloud dashboard
-4. **Deploy** with one click
-
-📖 **Detailed deployment instructions**: See [DEPLOYMENT.md](DEPLOYMENT.md)
-
-## 📁 Project Structure
-
+### Processing Pipeline
 ```
-Sprinto_QnA/
-├── app.py                          # Main Streamlit application
-├── config.py                       # Configuration settings
-├── requirements.txt                # Python dependencies
-├── setup.py                       # Setup script
-├── run.py                         # Easy run script
-├── test_setup.py                  # Setup verification
-├── demo.py                        # Demo script
-├── README.md                      # This comprehensive documentation
-├── services/                      # Core services
-│   ├── __init__.py
-│   ├── vlm_service.py            # VLM integration (SambaNova)
-│   ├── knowledge_processor.py    # Advanced knowledge processing
-│   ├── vector_store.py           # Vector database (Qdrant)
-│   └── rag_agent.py              # Enhanced RAG system
-├── utils/                         # Utility modules
-│   ├── __init__.py
-│   ├── pdf_processor.py          # PDF processing
-│   └── pdf_generator.py          # PDF generation
-└── files/                         # Data files
-    └── IndianMovie_KnowledgeBase.md
+PDF → Images → VLM Extraction → Questions JSON
+Knowledge Base → Chunking → Embeddings → Vector Store
+Questions + Vector Store → Retrieval + Reranking → LLM → Answers → PDF
 ```
 
-## 🎯 Supported Question Types (18 Types)
+### Key Components
 
-### **Enhanced Question Type Coverage with Format-Matching Answers**
+- **PDF Processor** (`utils/pdf_processor.py`): PDF to image conversion
+- **VLM Service** (`services/vlm_service.py`): Question extraction
+- **Knowledge Processor** (`services/knowledge_processor.py`): Text chunking
+- **Vector Store** (`services/vector_store.py`): Qdrant integration
+- **RAG Agent** (`services/rag_agent.py`): Answer generation
+- **PDF Generator** (`utils/pdf_generator.py`): Answer PDF creation
 
-| Type | Code | Description | Answer Format Example |
-|------|------|-------------|----------------------|
-| **Multiple Choice (Single)** | `multiple_choice_single` | One correct answer | `A. Option 1  B. Option 2 ✓  C. Option 3` |
-| **Multiple Choice (Multi)** | `multiple_choice_multi` | Multiple correct answers | `A. Option 1 ✓  B. Option 2  C. Option 3 ✓` |
-| **Fill in the Blank** | `fill_in_blank` | Missing words/phrases | `The movie Lagaan was directed by Ashutosh Gowariker.` |
-| **True/False** | `true_false` | Binary choice | `True ✓  False` |
-| **Match the Following** | `match_following` | Matching items | `1. Director A → Film X  2. Director B → Film Y` |
-| **Checkbox** | `checkbox` | Checkbox selections | `☑ Correct option  ☐ Incorrect option` |
-| **Table Completion** | `table_completion` | Fill table cells | Completed table with filled data |
-| **Textual Answer** | `textual_answer` | Open-ended response | Standard comprehensive text answers |
-| **Numerical Answer** | `numerical_answer` | Numerical responses | Precise numerical values with units |
-| **Date/Time** | `date_time` | Dates, years, periods | Specific dates and time periods |
-| **Ordering/Sequence** | `ordering_sequence` | Chronological/logical order | Numbered sequence (1, 2, 3...) |
-| **Categorization** | `categorization` | Classification/grouping | Clear categories with explanations |
-| **Comparison** | `comparison` | Compare items | Structured comparison format |
-| **Cause & Effect** | `cause_effect` | Cause and effect | Clear cause → effect relationships |
-| **Definition** | `definition` | Definitions/meanings | Precise definitions with context |
-| **Explanation** | `explanation` | Detailed explanations | Comprehensive explanatory text |
-| **Analysis** | `analysis` | Analytical thinking | Critical analysis with perspectives |
-| **Evaluation** | `evaluation` | Judgment/assessment | Assessment with criteria and reasoning |
+## Configuration
 
-## 🎨 Format-Matching Answer System
+Key settings in `config.py`:
+- Embedding dimensions: 1536 (Cohere embed-v4.0)
+- Chunk size: 1000 tokens, overlap: 200
+- Top-k retrieval: 10, rerank to top-5
+- Rate limiting: 1 req/sec for MistralAI
 
-### **Revolutionary Answer Formatting**
-The system now follows the critical guideline: **"Output answers in the same format as the input"** - making answers look exactly like a human would complete them.
+## Testing
 
-### **Format Transformations**
-
-| Question Type | Traditional Format | New Format-Matched Output |
-|---------------|-------------------|---------------------------|
-| **MCQ Single** | `Answer: B` | `A. Option 1  B. Option 2 ✓  C. Option 3` |
-| **MCQ Multi** | `Answers: A, C` | `A. Option 1 ✓  B. Option 2  C. Option 3 ✓` |
-| **True/False** | `Answer: True` | `True ✓  False` |
-| **Fill-in-blank** | `Answer: word1, word2` | `The complete sentence with word1 and word2 filled in.` |
-| **Checkbox** | N/A | `☑ Correct option  ☐ Incorrect option` |
-| **Table** | N/A | `Complete table with all cells filled` |
-| **Match-following** | `A-1, B-2` | `1. Item A → Match X  2. Item B → Match Y` |
-
-### **Key Benefits**
-- ✅ **Human-like Answers**: Matches natural human response patterns
-- ✅ **Visual Clarity**: Tick marks (✓), checkboxes (☑/☐), arrows (→) for immediate understanding
-- ✅ **Professional Output**: PDFs look like completed exam sheets
-- ✅ **Intuitive Design**: No need to interpret answer codes or formats
-- ✅ **Universal Understanding**: Clear to users regardless of technical background
-
-### **Technical Implementation**
-- **Smart Prompting**: LLM receives format-specific instructions for each question type
-- **Visual Preservation**: Special characters (✓, ☑, ☐, →) properly rendered in PDFs
-- **Backward Compatibility**: Falls back to traditional format if format-matching fails
-- **Unicode Support**: Full support for international characters and symbols
-
-## 🔧 Configuration
-
-### **API Configuration**
-All API keys are pre-configured in `config.py`:
-
-```python
-# API Configuration
-sambanova_api_key: str = "e828ddc3-8094-44dd-8f2b-b1624dfe2696"
-mistral_api_key: str = "DNdGxx2Zgx7l0iTkkz44CzsYOOdEzUe7"
-qdrant_url: str = "https://a41fdff5-3272-490c-9b97-f2f70222a9fb.eu-west-1-0.aws.cloud.qdrant.io:6333"
-cohere_api_key: str = "4Gqgx7RbAEIeH6ZIakbpLIEPvxY7tPtQYvL4h94D"
-cohere_embed_model: str = "embed-v4.0"
-cohere_rerank_model: str = "rerank-v3.5"
+```bash
+python test_setup.py
+python demo.py
 ```
 
-### **Processing Configuration**
-Customizable parameters in `config.py`:
+## File Structure
 
-```python
-# Processing Configuration
-embedding_dimension: int = 1536  # Cohere embed-v4.0
-similarity_threshold: float = 0.3  # Optimized for retrieval
-top_k_results: int = 10  # For reranking
-use_reranker: bool = True
-rerank_top_n: int = 5  # Final results
+```
+├── app.py                 # Main Streamlit application
+├── demo.py               # Demo script
+├── config.py             # Configuration settings
+├── requirements.txt      # Dependencies
+├── services/
+│   ├── vlm_service.py    # VLM question extraction
+│   ├── knowledge_processor.py  # Text chunking
+│   ├── vector_store.py   # Qdrant vector database
+│   └── rag_agent.py      # RAG answer generation
+└── utils/
+    ├── pdf_processor.py  # PDF processing
+    └── pdf_generator.py  # Answer PDF generation
 ```
 
-## 🔄 Processing Pipeline Details
+## API Rate Limits
 
-### **1. PDF Processing** (`utils/pdf_processor.py`)
-- Converts PDF pages to high-resolution images (300 DPI)
-- Validates PDF format and extracts metadata
-- Optimizes images for VLM processing
+- **MistralAI**: 1 request/second (handled with delays)
+- **SambaNova**: Standard rate limits
+- **Cohere**: Standard rate limits
+- **Qdrant**: Based on plan
 
-### **2. Question Extraction** (`services/vlm_service.py`)
-- Sends images to SambaNova VLM with structured prompts
-- Extracts questions and classifies types automatically
-- Parses and validates JSON responses
-- Implements retry logic with exponential backoff
+## Troubleshooting
 
-### **3. Advanced Knowledge Processing** (`services/knowledge_processor.py`)
-- **Semantic Chunking**: Domain-aware text segmentation
-- **Entity Recognition**: Extracts films, persons, years automatically
-- **Content Classification**: Identifies different content types
-- **Importance Scoring**: Ranks chunks by relevance
-- **Cohere Embeddings**: Generates 1536-dimensional vectors
+### Common Issues
+1. **PDF processing fails**: Check PDF format and file size
+2. **VLM extraction errors**: Verify SambaNova API key and model availability
+3. **Vector store connection**: Check Qdrant URL and API key
+4. **Answer generation fails**: Verify MistralAI API key and rate limits
 
-### **4. Vector Storage** (`services/vector_store.py`)
-- Stores embeddings in Qdrant cloud vector database
-- Implements efficient similarity search with cosine distance
-- Supports filtering and metadata queries
-- Handles batch operations for performance
+### Logs
+Check Streamlit logs for detailed error information.
 
-### **5. Enhanced RAG Answering** (`services/rag_agent.py`)
-- **Two-Stage Retrieval**: Initial search + Cohere reranking
-- Retrieves top-10 candidates, reranks to top-5
-- Generates answers using MistralAI with enhanced context
-- Handles 16 different question types appropriately
-- Provides confidence scoring and metadata
+## Maintenance
 
-### **6. PDF Generation** (`utils/pdf_generator.py`)
-- Creates formatted answer sheets with questions and answers
-- Maintains original question structure and metadata
-- Supports all 16 question types
-- Includes processing statistics and timestamps
+### Regular Tasks
+- Monitor API usage and costs
+- Update vector database when knowledge base changes
+- Review and update question type classifications
+- Test with new PDF formats
 
-## 📊 Monitoring and Quality Assurance
+### Updates
+- Keep dependencies updated via `pip install -r requirements.txt --upgrade`
+- Monitor API provider updates and model changes
+- Update configuration as needed
 
-### **Comprehensive Logging**
-- Detailed logging at all processing stages
-- Performance metrics and timing information
-- Debug information for troubleshooting
-- Configurable log levels for production
+## Security
 
-### **Error Handling**
-- Comprehensive exception handling throughout pipeline
-- Graceful degradation for API failures
-- User-friendly error messages and recovery options
-- Automatic retry mechanisms with exponential backoff
+- API keys stored as environment variables or Streamlit secrets
+- No sensitive data logged
+- Temporary files cleaned up after processing
+- Vector database access restricted by API key
 
-### **Validation Systems**
-- PDF format validation and compatibility checks
-- JSON response validation for VLM outputs
-- Embedding dimension verification
-- Answer quality checks and confidence scoring
+## Performance
 
-### **Performance Optimization**
-- Batch processing for embeddings generation
-- Caching for repeated operations
-- Optimized chunk sizes for domain-specific content
-- Memory-efficient processing for large documents
+- PDF processing: ~2-5 seconds per page
+- Question extraction: ~10-30 seconds per page
+- Vector database setup: ~30-60 seconds for typical knowledge base
+- Answer generation: ~1-2 seconds per question (rate limited)
 
-## 🛠️ Advanced Usage
+## Support
 
-### **Custom Knowledge Base**
-Upload your own markdown knowledge base for domain-specific questions:
-
-```markdown
-# Your Knowledge Base
-
-## Section 1: Movies
-Content about movies...
-
-## Section 2: Actors
-Information about actors...
-
-## Section 3: Awards
-Details about awards...
-```
-
-### **Batch Processing**
-For multiple PDFs, modify the pipeline:
-
-```python
-from services.vlm_service import extract_questions_from_images
-from services.rag_agent import answer_all_questions
-
-# Process multiple PDFs
-for pdf_path in pdf_files:
-    images, pdf_info = process_uploaded_pdf(pdf_path)
-    questions = extract_questions_from_images(images)
-    # ... continue processing
-```
-
-### **Custom Question Types**
-Extend question types in `config.py`:
-
-```python
-@dataclass
-class QuestionTypes:
-    CUSTOM_TYPE: str = "custom_type"
-    # ... existing 16 types
-```
-
-### **API Integration Example**
-```python
-# Cohere embeddings integration
-response = client.embed(
-    texts=batch_texts,
-    model="embed-v4.0",
-    input_type="search_document",
-    embedding_types=["float"]
-)
-embeddings = response.embeddings.float_
-
-# Cohere reranking integration
-rerank_response = client.rerank(
-    model="rerank-v3.5",
-    query=question,
-    documents=context_texts,
-    top_n=5
-)
-```
-
-## 🔍 Troubleshooting
-
-### **Common Issues & Solutions**
-
-1. **PDF Processing Errors**
-   - ✅ Ensure PDF is not corrupted or password-protected
-   - ✅ Check file size limits (recommended < 50MB)
-   - ✅ Verify PDF contains readable text/images
-
-2. **VLM Extraction Issues**
-   - ✅ Check SambaNova API connectivity and rate limits
-   - ✅ Verify image quality and resolution (300 DPI recommended)
-   - ✅ Review VLM prompt effectiveness for question detection
-
-3. **Vector Store Issues**
-   - ✅ Ensure Qdrant cloud service is accessible
-   - ✅ Check embedding dimension compatibility (1536 for Cohere)
-   - ✅ Verify collection creation permissions and API keys
-
-4. **Answer Quality Issues**
-   - ✅ Review knowledge base content relevance
-   - ✅ Adjust similarity threshold (current: 0.3)
-   - ✅ Tune chunking parameters for your domain
-   - ✅ Check Cohere reranking effectiveness
-
-### **Performance Optimization Tips**
-- 🚀 Use batch processing for multiple documents
-- 🚀 Implement caching for repeated queries
-- 🚀 Optimize chunk sizes based on content type
-- 🚀 Monitor API rate limits and usage
-- 🚀 Use appropriate similarity thresholds for your domain
-
-### **Debug Mode**
-Enable detailed logging:
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-## 🎉 System Enhancements Summary
-
-### **✅ Completed Improvements**
-1. **18 Question Types**: Enhanced from 6 to 18 comprehensive question types (including checkbox and table)
-2. **Format-Matching Answers**: Revolutionary answer system that matches input format
-3. **Advanced Chunking**: Semantic-aware chunking with 149 intelligent chunks
-4. **Cohere Integration**: embed-v4.0 (1536-dim) + rerank-v3.5 for superior performance
-5. **Two-Stage Retrieval**: Initial search + reranking for optimal context selection
-6. **Production-Ready**: Robust error handling, logging, and monitoring
-
-### **Performance Metrics**
-- **📊 Chunking Quality**: 149 semantic chunks vs. basic splitting
-- **🎯 Retrieval Accuracy**: Two-stage process with reranking
-- **📈 Question Coverage**: 18 comprehensive question types with format-matching
-- **🎨 Answer Quality**: Human-like format-matched responses
-- **⚡ Processing Speed**: Optimized for production workloads
-- **🛡️ System Reliability**: Comprehensive error handling and fallbacks
-
-## 📈 Future Enhancements
-
-### **Planned Features**
-- [ ] Support for more file formats (DOCX, PPTX, images)
-- [ ] Multi-language support for international content
-- [ ] Advanced question type auto-detection
-- [ ] Interactive answer editing and validation
-- [ ] Batch processing interface for multiple documents
-- [ ] Custom embedding models integration
-- [ ] Answer confidence scoring and quality metrics
-- [ ] Export to multiple formats (Excel, Word, etc.)
-
-### **Integration Options**
-- [ ] REST API for programmatic access
-- [ ] Webhook support for notifications
-- [ ] Database integration for persistence
-- [ ] Cloud storage integration (AWS S3, Google Drive)
-- [ ] Authentication and user management
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes with proper documentation
-4. Add tests if applicable
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- **SambaNova** for advanced VLM capabilities
-- **MistralAI** for powerful language model services
-- **Qdrant** for efficient vector database solutions
-- **Cohere** for state-of-the-art embeddings and reranking
-- **Streamlit** for the intuitive web interface
-
----
-
-## 🚀 Ready for Production
-
-This comprehensive system provides **state-of-the-art performance** for PDF question extraction and RAG-based answering, with significant improvements in:
-
-- ✅ **Accuracy**: Enhanced retrieval with Cohere reranking
-- ✅ **Coverage**: 18 comprehensive question types with format-matching
-- ✅ **User Experience**: Human-like answers with visual indicators (✓, ☑, ☐, →)
-- ✅ **Performance**: Optimized chunking and embedding strategies
-- ✅ **Reliability**: Production-grade error handling and monitoring
-- ✅ **Scalability**: Modular architecture for easy scaling
-
-**Ready for production use with revolutionary format-matching capabilities!** 🎯
+For issues or questions, contact the development team.

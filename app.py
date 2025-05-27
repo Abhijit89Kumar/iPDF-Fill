@@ -216,11 +216,14 @@ def display_results(answered_questions, output_pdf_path):
     with col1:
         if Path(output_pdf_path).exists():
             with open(output_pdf_path, "rb") as pdf_file:
+                pdf_data = pdf_file.read()
                 st.download_button(
                     label="📄 Download Answer PDF",
-                    data=pdf_file.read(),
+                    data=pdf_data,
                     file_name=output_pdf_path,
-                    mime="application/pdf"
+                    mime="application/pdf",
+                    key=f"download_pdf_{output_pdf_path}",
+                    use_container_width=True
                 )
 
     with col2:
@@ -229,7 +232,9 @@ def display_results(answered_questions, output_pdf_path):
             label="📋 Download JSON Results",
             data=json_str,
             file_name=f"{Path(output_pdf_path).stem}.json",
-            mime="application/json"
+            mime="application/json",
+            key=f"download_json_{output_pdf_path}",
+            use_container_width=True
         )
 
     # Preview questions and answers

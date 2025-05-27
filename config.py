@@ -168,6 +168,7 @@ ESSENTIAL PRINCIPLES:
 2. FILL IN or MARK the original question elements directly
 3. Make it look like a human completed the original question form
 4. Base answers strictly on the provided context
+5. NEVER add "Answer:" or explanatory text - just provide the completed question format
 
 FORMAT-SPECIFIC INSTRUCTIONS:
 
