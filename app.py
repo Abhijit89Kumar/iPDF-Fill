@@ -208,38 +208,62 @@ def display_results(answered_questions, output_pdf_path):
         processing_time = time.time() - answered_questions.get("extraction_timestamp", time.time())
         st.metric("Processing Time", f"{processing_time:.1f}s")
 
-    # Download buttons
+    # Download buttons with session state to prevent refresh
     st.subheader("📥 Download Results")
+
+    # Initialize session state for downloads
+    if 'download_ready' not in st.session_state:
+        st.session_state.download_ready = False
+
+    # Store data in session state to prevent refresh issues
+    if Path(output_pdf_path).exists():
+        with open(output_pdf_path, "rb") as pdf_file:
+            pdf_data = pdf_file.read()
+
+        # Store in session state
+        st.session_state.pdf_data = pdf_data
+        st.session_state.pdf_filename = output_pdf_path
+
+    # Store JSON data
+    json_str = json.dumps(answered_questions, indent=2)
+    st.session_state.json_data = json_str
+    st.session_state.json_filename = f"{Path(output_pdf_path).stem}.json"
+
+    st.session_state.download_ready = True
 
     col1, col2 = st.columns(2)
 
     with col1:
-        if Path(output_pdf_path).exists():
-            with open(output_pdf_path, "rb") as pdf_file:
-                pdf_data = pdf_file.read()
+        if st.session_state.download_ready and hasattr(st.session_state, 'pdf_data'):
+            # Use timestamp to ensure unique keys
+            import time
+            timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
 
-            # Use a more unique key and disable form submission
-            download_key = f"pdf_download_{hash(output_pdf_path)}_{len(answered_questions)}"
             st.download_button(
                 label="📄 Download Answer PDF",
-                data=pdf_data,
-                file_name=output_pdf_path,
+                data=st.session_state.pdf_data,
+                file_name=st.session_state.pdf_filename,
                 mime="application/pdf",
-                key=download_key,
-                help="Click to download the answer PDF"
+                key=f"pdf_download_{timestamp}",
+                help="Click to download the answer PDF",
+                use_container_width=True
             )
 
     with col2:
-        json_str = json.dumps(answered_questions, indent=2)
-        json_download_key = f"json_download_{hash(output_pdf_path)}_{len(answered_questions)}"
-        st.download_button(
-            label="📋 Download JSON Results",
-            data=json_str,
-            file_name=f"{Path(output_pdf_path).stem}.json",
-            mime="application/json",
-            key=json_download_key,
-            help="Click to download the JSON results"
-        )
+        if st.session_state.download_ready and hasattr(st.session_state, 'json_data'):
+            # Use timestamp to ensure unique keys
+            import time
+            timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
+
+            st.download_button(
+                label="📋 Download JSON Results",
+                data=st.session_state.json_data,
+                file_name=st.session_state.json_filename,
+                mime="application/json",
+                key=f"json_download_{timestamp}",
+                help="Click to download the JSON results",
+                use_container_width=True
+            )
 
     # Preview questions and answers
     st.subheader("👀 Preview Questions & Answers")

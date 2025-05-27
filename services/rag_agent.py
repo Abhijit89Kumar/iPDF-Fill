@@ -277,9 +277,26 @@ D. Sanjay Leela Bhansali
             base_prompt += f"""
 Original Statement: {question}
 
-CRITICAL: Show both True and False options with the correct one marked with ✓ symbol.
-Your response should be exactly: "True ✓  False" or "True  False ✓"
-Do NOT write "Answer:" or any explanation - just the marked True/False options.
+CRITICAL FORMATTING RULES:
+1. Show both True and False options
+2. Mark the correct option with ✓ symbol
+3. Do NOT add "Answer:", explanations, or extra text
+4. Put each option on a separate line
+
+REQUIRED OUTPUT FORMAT:
+True ✓
+False
+(if statement is true)
+
+OR
+
+True
+False ✓
+(if statement is false)
+
+Example for a false statement:
+True
+False ✓
 """
 
         elif question_type == QUESTION_TYPES.FILL_IN_BLANK:
@@ -297,11 +314,24 @@ Example: "The movie _____ was directed by _____" becomes "The movie Lagaan was d
             base_prompt += f"""
 Original Question: {question}
 
-CRITICAL: If the question shows items to match, recreate the matching structure with correct connections.
-Show matched pairs clearly connected with arrows (→).
-Do NOT write "Answer:" - show the completed matching exercise.
+CRITICAL FORMATTING RULES:
+1. Show each matching pair on a separate line
+2. Use arrows (→) to connect items with their matches
+3. Number each matching pair (1., 2., 3., etc.)
+4. Do NOT add "Answer:" or explanations
+5. Put each match on a new line
 
-Format: 1. Item A → Match X  2. Item B → Match Y  3. Item C → Match Z
+REQUIRED OUTPUT FORMAT:
+1. [Item A] → [Match X]
+2. [Item B] → [Match Y]
+3. [Item C] → [Match Z]
+
+Example:
+1. Dil Chahta Hai → Farhan Akhtar
+2. Lagaan → Ashutosh Gowariker
+3. Veer-Zaara → Yash Chopra
+4. Chak De! India → Shimit Amin
+5. Black Friday → Anurag Kashyap
 """
 
         elif question_type == QUESTION_TYPES.CHECKBOX:
@@ -414,6 +444,54 @@ Example:
                 answer = re.sub(r'\s+', ' ', answer)
                 # Add newlines before option letters (but not the first one)
                 answer = re.sub(r'\s+([A-Z]\.)', r'\n\1', answer)
+                answer = answer.strip()
+
+        # For True/False questions, ensure proper formatting
+        elif question_type == QUESTION_TYPES.TRUE_FALSE:
+            import re
+
+            # If the answer has newlines, preserve them
+            if '\n' in answer:
+                # Split by newlines and clean each line
+                lines = answer.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    line = line.strip()
+                    if line and (line.startswith('True') or line.startswith('False')):
+                        cleaned_lines.append(line)
+
+                if cleaned_lines:
+                    answer = '\n'.join(cleaned_lines)
+            else:
+                # If no newlines, try to format properly
+                # Remove excessive spaces
+                answer = re.sub(r'\s+', ' ', answer)
+                # Add newlines between True and False
+                answer = re.sub(r'\s+(True|False)', r'\n\1', answer)
+                answer = answer.strip()
+
+        # For Match the Following questions, ensure proper formatting
+        elif question_type == QUESTION_TYPES.MATCH_FOLLOWING:
+            import re
+
+            # If the answer has newlines, preserve them
+            if '\n' in answer:
+                # Split by newlines and clean each line
+                lines = answer.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    line = line.strip()
+                    if line and ('→' in line or re.match(r'^\d+\.', line)):
+                        cleaned_lines.append(line)
+
+                if cleaned_lines:
+                    answer = '\n'.join(cleaned_lines)
+            else:
+                # If no newlines, try to add them between numbered items
+                # Remove excessive spaces
+                answer = re.sub(r'\s+', ' ', answer)
+                # Add newlines before numbered items (but not the first one)
+                answer = re.sub(r'\s+(\d+\.)', r'\n\1', answer)
                 answer = answer.strip()
 
         return answer

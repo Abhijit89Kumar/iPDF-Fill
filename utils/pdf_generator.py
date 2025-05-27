@@ -255,8 +255,26 @@ class PDFGenerator:
 
         elif question_type == QUESTION_TYPES.TRUE_FALSE:
             if has_checkmark:
-                # Format-matched answer - show as completed question
-                return f"<b>Completed Question:</b><br/>{self._escape_html(answer)}"
+                # Format-matched answer - show as completed question with proper formatting
+                clean_answer = answer.strip()
+
+                # Check if answer already has newlines (preferred format)
+                if '\n' in clean_answer:
+                    # Split by newlines and format each option
+                    lines = clean_answer.split('\n')
+                    formatted_options = []
+                    for line in lines:
+                        line = line.strip()
+                        if line and (line.startswith('True') or line.startswith('False')):
+                            escaped_line = self._escape_html(line)
+                            formatted_options.append(escaped_line)
+
+                    if formatted_options:
+                        options_text = "<br/>".join(formatted_options)
+                        return f"<b>Completed Question:</b><br/>{options_text}"
+
+                # Fallback formatting
+                return f"<b>Completed Question:</b><br/>{self._escape_html(clean_answer)}"
             else:
                 # Fallback to traditional format
                 return f"<b>Answer:</b> {self._escape_html(answer)}"
@@ -273,7 +291,25 @@ class PDFGenerator:
         elif question_type == QUESTION_TYPES.MATCH_FOLLOWING:
             if has_arrow:
                 # Format-matched answer with arrows
-                return f"<b>Completed Matching:</b><br/>{self._escape_html(answer)}"
+                clean_answer = answer.strip()
+
+                # Check if answer already has newlines (preferred format)
+                if '\n' in clean_answer:
+                    # Split by newlines and format each matching pair
+                    lines = clean_answer.split('\n')
+                    formatted_matches = []
+                    for line in lines:
+                        line = line.strip()
+                        if line and '→' in line:
+                            escaped_line = self._escape_html(line)
+                            formatted_matches.append(escaped_line)
+
+                    if formatted_matches:
+                        matches_text = "<br/>".join(formatted_matches)
+                        return f"<b>Completed Matching:</b><br/>{matches_text}"
+
+                # Fallback formatting
+                return f"<b>Completed Matching:</b><br/>{self._escape_html(clean_answer)}"
             else:
                 # Traditional format
                 return f"<b>Matches:</b><br/>{self._escape_html(answer)}"
