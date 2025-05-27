@@ -233,34 +233,29 @@ def display_results(answered_questions, output_pdf_path):
 
     col1, col2 = st.columns(2)
 
+    # Generate unique timestamp for download buttons
+    current_timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
+
     with col1:
         if st.session_state.download_ready and hasattr(st.session_state, 'pdf_data'):
-            # Use timestamp to ensure unique keys
-            import time
-            timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
-
             st.download_button(
                 label="📄 Download Answer PDF",
                 data=st.session_state.pdf_data,
                 file_name=st.session_state.pdf_filename,
                 mime="application/pdf",
-                key=f"pdf_download_{timestamp}",
+                key=f"pdf_download_{current_timestamp}",
                 help="Click to download the answer PDF",
                 use_container_width=True
             )
 
     with col2:
         if st.session_state.download_ready and hasattr(st.session_state, 'json_data'):
-            # Use timestamp to ensure unique keys
-            import time
-            timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
-
             st.download_button(
                 label="📋 Download JSON Results",
                 data=st.session_state.json_data,
                 file_name=st.session_state.json_filename,
                 mime="application/json",
-                key=f"json_download_{timestamp}",
+                key=f"json_download_{current_timestamp + 1}",  # Slightly different timestamp
                 help="Click to download the JSON results",
                 use_container_width=True
             )
