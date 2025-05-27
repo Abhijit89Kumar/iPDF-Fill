@@ -35,18 +35,18 @@ class PDFGenerator:
         self.question_style = ParagraphStyle(
             'QuestionStyle',
             parent=self.styles['Normal'],
-            fontSize=12,
-            spaceAfter=6,
+            fontSize=11,  # Reduced from 12
+            spaceAfter=4,  # Reduced from 6
             textColor=black,
             fontName='Helvetica-Bold'
         )
 
-        # Answer style
+        # Answer style - optimized for more questions per page
         self.answer_style = ParagraphStyle(
             'AnswerStyle',
             parent=self.styles['Normal'],
-            fontSize=11,
-            spaceAfter=12,
+            fontSize=10,  # Reduced from 11
+            spaceAfter=6,  # Reduced from 12
             textColor=blue,
             leftIndent=20
         )
@@ -70,13 +70,13 @@ class PDFGenerator:
             alignment=1  # Center alignment
         )
 
-        # Metadata style
+        # Metadata style - optimized for more questions per page
         self.metadata_style = ParagraphStyle(
             'MetadataStyle',
             parent=self.styles['Normal'],
-            fontSize=9,
+            fontSize=8,  # Reduced from 9
             textColor=red,
-            spaceAfter=6
+            spaceAfter=3  # Reduced from 6
         )
 
     def generate_answer_pdf(self, questions_json: Dict[str, Any], output_path: str) -> bool:
@@ -113,8 +113,8 @@ class PDFGenerator:
             for i, question_data in enumerate(questions_json["questions"]):
                 story.extend(self._create_question_section(question_data, i + 1))
 
-                # Add page break every 3 questions (optional)
-                if (i + 1) % 3 == 0 and i < len(questions_json["questions"]) - 1:
+                # Add page break every 5 questions for better space utilization
+                if (i + 1) % 5 == 0 and i < len(questions_json["questions"]) - 1:
                     story.append(PageBreak())
 
             # Build PDF
@@ -134,7 +134,7 @@ class PDFGenerator:
         # Title
         title = Paragraph("Question and Answer Sheet", self.header_style)
         story.append(title)
-        story.append(Spacer(1, 12))
+        story.append(Spacer(1, 8))  # Reduced from 12
 
         # Metadata
         total_questions = questions_json.get("total_questions", 0)
@@ -150,7 +150,7 @@ class PDFGenerator:
 
         metadata = Paragraph(metadata_text, self.metadata_style)
         story.append(metadata)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 12))  # Reduced from 20
 
         return story
 
@@ -176,7 +176,7 @@ class PDFGenerator:
         # Format answer based on question type
         formatted_answer = self._format_answer_by_type(question_type, answer, options, question_text)
 
-        story.append(Spacer(1, 6))
+        story.append(Spacer(1, 3))  # Reduced from 6
         story.append(Paragraph(formatted_answer, self.answer_style))
 
         # Metadata
@@ -186,7 +186,7 @@ class PDFGenerator:
         meta_text = f"<i>Source Page: {page_num} | Context Chunks Used: {context_used}</i>"
         story.append(Paragraph(meta_text, self.metadata_style))
 
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 8))  # Reduced from 15 for more questions per page
 
         return story
 
